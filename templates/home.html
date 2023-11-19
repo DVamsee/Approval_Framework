@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Home
+Home-{{request.user.first_name}}
 {%endblock %}
 
 {% block body %}
@@ -84,6 +84,12 @@ Home
           
        </ul>
        <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 ">
+         <li>
+            <p  class="flex items-center p-2 text-gray-900 rounded-lg  group">
+               
+               <span class="ms-3">Hi! {{request.user.first_name}}</span>
+            </p>
+         </li>
           
           <li>
             <a href="/profile/" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">

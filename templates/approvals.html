@@ -15,28 +15,70 @@ Approvals
     <div class="grid grid-cols-1  lg:grid-cols-2 gap-6 mt-4">
 
         {% for approval in approvals %}
-        <card class="col-span-1  bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">
-            <a href="/company/{{company.name}}/approvals/"
-                class="block max-w-sm p-6">
+        <card class="col-span-1 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">
+            <div class="flex flex-col max-w-sm p-6 relative">
+        
+                <div class="flex justify-between items-center mb-2">
+                    <h5 class="text-2xl font-bold tracking-tight text-gray-900">
+                        {{approval.header_detail}}
+                    </h5>
+        
+                    <!-- Dropdown button -->
+                    <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown{{approval.id}}" class="ml-10 text-white bg-blue-400 hover:bg-blue-500 font-medium rounded-lg text-sm px-3 py-2.5 text-center inline-flex items-center" type="button">
+                        Comments
+                        
+                    </button>
+        
+                    <!-- Dropdown menu -->
+                    <div id="dropdown{{approval.id}}" class="z-10 hidden absolute top-0 right-0 bg-white divide-y divide-gray-100 rounded-lg shadow w-72">
+                        <div class="px-4 py-2 border-b border-gray-300">
+                            {%for comment in comments %}
+                              {%if comment.approval.id == approval.id %}
+                              <div class="flex  my-1 ">
+                                
+                                <p class="flex-1 w-5/6 overflow-auto bg-gray-200 text-gray-900 rounded-lg px-2 py-2 my-2">{{comment.user.User.first_name}} : {{comment.text}}</p>
+                            
+                              </div>
+                              
+                              {%endif%}
+                            {%endfor%}
+                              <!-- Display more comments here -->
+                          </div>
+                              
+                            <!-- Add New Comment Section -->
+                            <div class="px-4 py-2">
+                              <form method="post" action="/approval/{{approval.id}}/comment/add/">
+                                {% csrf_token %}
+                                <input class="mt-2 px-2 py-1 w-full h-auto rounded-lg border-2 border-blue-400 active:border-blue-500" type="textarea" placeholder="Add new comment" name="comment">
+                                <input type="submit" name="Add Comment" class="text-white font-semibold  tracking-wide rounded-lg my-2 px-2 py-1 bg-green-600">
+                              </form>
+                                
+                            </div>
+                    </div>
 
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
-                    {{approval.header_detail}}
-                </h5>
+                    <!-- comment -->
+
+                </div>
+        
                 <p class="font-normal text-gray-700">
                     {{approval.line_item_detail}}
                 </p>
-                <p class="font-normal text-gray-700">
-                    {{approval.status}}
+                <p class="mt-2 font-medium text-gray-900 capitalize ">
+                    Status : {{approval.status}}
                 </p>
-                
-            </a>
-            <!--
-
-               < a href="/approval/{{company.id}}/remove/" class="inline-flex ml-6 mb-6 items-center bg-red-100 border-0 py-1 px-3 focus:outline-none hover:bg-red-200 rounded text-base mt-4 md:mt-0">
-                Remove      
-            </a>
-            -->
-            
+                {% if profile.role == 'staff' %}
+                <div class="flex mb-2 mt-2">
+                    <a href="/approval/{{approval.id}}/approve/" class="mr-2 text-white bg-green-400 hover:bg-green-500 font-medium rounded-lg text-sm px-3 py-2.5 text-center inline-flex items-center">
+                        Approve
+                    </a>
+                    <a href="/approval/{{approval.id}}/reject/" class="mx-2 text-white bg-red-400 hover:bg-red-500 font-medium rounded-lg text-sm px-3 py-2.5 text-center inline-flex items-center">
+                        Reject
+                    </a>
+                </div>
+                {%endif%}
+                <!-- Add more content as needed -->
+        
+            </div>
         </card>
         {%endfor%}
 

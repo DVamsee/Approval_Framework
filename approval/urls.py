@@ -16,5 +16,8 @@ urlpatterns = [
     path('workflow/<int:id>/remove/',views.delete_workflow,name = 'workflow delete'),
     path('approval/',views.approval,name = 'approval page'),
     path('approval/create/',views.approval_create, name = 'approval create page'),
+    path('approval/<int:id>/comment/add/',views.comment_create,name = 'comment create'),
+    path('approval/<int:id>/approve/',views.approval_approve,name='approval approve'),
+    path('approval/<int:id>/reject/',views.approval_reject,name = 'approval reject'),
 
 ]

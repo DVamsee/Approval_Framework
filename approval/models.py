@@ -73,5 +73,5 @@ class Comment(models.Model):
     text = models.TextField()
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
     
