@@ -10,14 +10,39 @@ User = get_user_model()
 class RegistrationForm(forms.Form):
     first_name = forms.CharField(
         max_length = 20,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'first_name',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'First Name' ,
 
+            }
+        )
     )
     last_name = forms.CharField(
         max_length=20,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'last_name',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'Last Name' ,
+
+            }
+        )
     )
     email = forms.EmailField(
         max_length = 30,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'last_name',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'example@gmail.com' ,
 
+            }
+        )
     )
     choices = tuple(list((company.name,company.name) for company in Company.objects.all()))
     company = forms.ChoiceField(
@@ -29,7 +54,7 @@ class RegistrationForm(forms.Form):
             attrs={
                 'type':'text',
                 'id': 'password',
-                
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
                 'placeholder' : 10*'x' ,
 
             }
@@ -65,42 +90,44 @@ class RegistrationForm(forms.Form):
         raise forms.ValidationError('password must be at least 8 characters')
     
 
-    class LoginForm(forms.Form):
-        username = forms.CharField(
-        widget= forms.TextInput(
-                attrs={
-                    'id': 'username',
-                    'placeholder' : 'username or email' ,
-                    
-                }
-            )
+class LoginForm(forms.Form):
+    username = forms.CharField(
+    widget= forms.TextInput(
+            attrs={
+                'id': 'username',
+                'placeholder' : 'username or email' ,
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                
+            }
         )
+    )
 
-        password = forms.CharField(
-            widget = forms.TextInput(
-                attrs={
-                    'type':'password',
-                    'id': 'password',
-                    'placeholder' : 10*'x' ,
+    password = forms.CharField(
+        widget = forms.TextInput(
+            attrs={
+                'type':'password',
+                'id': 'password',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 10*'x' ,
 
-                }
-            )
+            }
         )
+    )
 
-        def clean_username(self):
-            username = self.cleaned_data.get('username')
-            obj_username = User.objects.filter(username = username )
-            if obj_username:
-                return username
-            raise forms.ValidationError("username does'nt exist")
-        
-        def clean_password(self):
-            username = self.cleaned_data.get('username')
-            password = self.cleaned_data.get('password')
-            obj = User.objects.filter(username = username)
-            if obj:
-                user = auth.authenticate(username = username,password = password )
-                if user!=None:
-                    return password
-                raise forms.ValidationError('wrong password')
-            raise forms.ValidationError("user dose'nt exist")
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        obj_username = User.objects.filter(username = username )
+        if obj_username:
+            return username
+        raise forms.ValidationError("username does'nt exist")
+    
+    def clean_password(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        obj = User.objects.filter(username = username)
+        if obj:
+            user = auth.authenticate(username = username,password = password )
+            if user!=None:
+                return password
+            raise forms.ValidationError('wrong password')
+        raise forms.ValidationError("user dose'nt exist")

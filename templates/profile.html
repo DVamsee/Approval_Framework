@@ -1,0 +1,59 @@
+{% extends "home.html" %}
+{% block title %}
+Profile
+{% endblock %}
+
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md w-full sm:w-96">
+
+    <h1 class="text-3xl font-semibold mb-6">User Profile</h1>
+
+    <!-- User Info Card -->
+    <div class="space-y-4">
+        <div>
+            <label for="firstName" class="text-gray-600">First Name:</label>
+            <p id="firstName" class="text-xl font-medium">{{user.first_name}}</p>
+        </div>
+        <div>
+            <label for="lastName" class="text-gray-600">Last Name:</label>
+            <p id="lastName" class="text-xl font-medium">
+            {% if api_key %}
+                {{user.last_name}}
+            {%else %}
+            --------------------
+            {% endif %}    
+                
+        </p>
+        </div>
+        <div>
+            <label for="email" class="text-gray-600">Email:</label>
+            <p id="email" class="text-xl font-medium">{{user.email}}</p>
+        </div>
+        <div>
+            <label for="company" class="text-gray-600">Company:</label>
+            <p id="company" class="text-xl font-medium">{{profile.company}}</p>
+        </div>
+        <div>
+            <label for="role" class="text-gray-600">Role:</label>
+            <p id="role" class="text-xl font-medium">{{profile.role}}</p>
+        </div>
+        <div>
+            <label for="apiKey" class="text-gray-600">API Key:</label>
+            <p id="apiKey" class="text-xl font-medium">
+            {% if api_key %}
+                {{profile.api_key}}
+            {%else %}
+            xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            {% endif %}
+            </p>
+        </div>
+    </div>
+
+</div>
+</div>
+
+ 
+{% endblock %}
+
+

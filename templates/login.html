@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-Registration
+Login
 {% endblock %}
 
 
@@ -9,11 +9,11 @@ Registration
 <div class="min-h-screen  flex flex-col items-center justify-center">
 
     <div class="md:mt-10">
-      <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8" >
+      <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 "">
         <a href="/" >
           Home
         </a>
-        <div class="mt-4 self-center ttext-xl font-medium text-gray-900 ">Enter your details to create your account</div>
+        <div class="mt-4 self-center ttext-xl font-medium text-gray-900 ">Enter your credentials to access your account</div>
 
         <form class="space-y-6" method="post">
             
@@ -33,9 +33,9 @@ Registration
                     </div>
             -->
        
-            <input type="submit" value="Register" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <input type="submit" value="Login" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-                Already have an account? <a href="/login/" class="text-blue-700 hover:underline dark:text-blue-500">Login</a>
+                Not registered? <a href="/register/" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
             </div>
         </form>
       </div>
