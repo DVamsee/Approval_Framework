@@ -1,12 +1,45 @@
+from typing import Any
 from django import forms
-from .models import Company
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import auth
+from .models import User_profile,Comment,Company,Workflow
 
 
 User = get_user_model()
 
+class CompanyForm(forms.Form):
+    name = forms.CharField(
+        max_length = 20,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'name',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'First Name' ,
 
+            }
+        )
+    )
+    place = forms.CharField(
+        max_length = 20,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'place',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'First Name' ,
+
+            }
+        )
+    )
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        obj = Company.objects.filter(name = name).first()
+        if obj:
+            raise forms.ValidationError("company profile already exist")
+        return name
+    
 class RegistrationForm(forms.Form):
     first_name = forms.CharField(
         max_length = 20,
@@ -91,11 +124,11 @@ class RegistrationForm(forms.Form):
     
 
 class LoginForm(forms.Form):
-    username = forms.CharField(
+    email = forms.EmailField(
     widget= forms.TextInput(
             attrs={
-                'id': 'username',
-                'placeholder' : 'username or email' ,
+                'id': 'email',
+                'placeholder' : 'email' ,
                 'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
                 
             }
@@ -115,19 +148,128 @@ class LoginForm(forms.Form):
     )
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
-        obj_username = User.objects.filter(username = username )
+        email = self.cleaned_data.get('email')
+        obj_username = User.objects.filter(username = email )
         if obj_username:
-            return username
+            return email
         raise forms.ValidationError("username does'nt exist")
     
     def clean_password(self):
-        username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
-        obj = User.objects.filter(username = username)
+        print(password)
+        obj = User.objects.filter(username = email).first()
         if obj:
-            user = auth.authenticate(username = username,password = password )
+            user = User_profile.objects.filter(User = obj.id, password = password)
             if user!=None:
                 return password
             raise forms.ValidationError('wrong password')
         raise forms.ValidationError("user dose'nt exist")
+    
+
+
+class WorkflowForm(forms.Form):
+    name = forms.CharField(
+        max_length = 20,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'name',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'Name' ,
+
+            }
+        )
+    )
+    description = forms.CharField(
+    max_length = 100,
+    widget = forms.Textarea(
+        attrs={
+            'type':'text',
+            'id': 'name',
+            'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+            'placeholder' : 'Description' ,
+
+        }
+    )
+    )
+    threshold_value = forms.CharField(
+        widget = forms.TextInput(
+        attrs={
+            'type':'text',
+            'id': 'threshold_value',
+            'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+            'placeholder' : 'value > 100' ,
+
+        }
+    )
+    )
+    def __init__(self, *args, **kwargs):
+        super(WorkflowForm, self).__init__(*args, **kwargs)
+
+        # Dynamically retrieve staff users and generate choices
+        staff_users = User_profile.objects.filter(role='staff')
+        staffs = dict()
+        for user in staff_users:
+            staffs[user.id] = user.User.first_name
+        choices = tuple(list((i,i) for i in range(1,len(staff_users)+1)))
+        # Create a MultipleChoiceField with dynamic choices
+        for id in staffs.keys():
+
+            self.fields[staffs[id]] = forms.ChoiceField(
+                choices=choices,
+                required=True,  # You can set it to True if at least one staff user is required
+            )
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        workflow = Workflow.objects.filter(name=name)
+        if workflow:
+            raise forms.ValidationError("Workflow with this name already exists")
+        return name
+
+    def clean_threshold_value(self):
+        number = self.cleaned_data.get('threshold_value')
+        workflow = Workflow.objects.filter(threshold_value=number)
+
+        if not workflow:
+            if int(number)>100:
+                return number
+            raise forms.ValidationError('enter threshold frequency greater than 100')
+        raise forms.ValidationError('Workflow with this threshold already exist')
+    
+
+class ApprovalForm(forms.Form):
+    header_detail = forms.CharField(
+        max_length=100,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'header_detail',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'Approval heading' ,
+
+            }
+        )
+    )
+    line_item_detail = forms.CharField(
+        max_length=100,
+        widget = forms.TextInput(
+            attrs={
+                'type':'text',
+                'id': 'line_item_detail',
+                'class' : 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ',
+                'placeholder' : 'description about approval' ,
+
+            }
+        )
+    )
+    aproval_choices = (
+        ('urgent','urgent'),
+        ('small','small'),
+        ('adhoc','adhoc'),
+    )
+    approval_type = forms.ChoiceField(
+        choices = aproval_choices,
+    )
+

@@ -5,7 +5,7 @@ Profile
 
 
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-md w-full sm:w-96">
+<div class="bg-white p-8  sm:w-96">
 
     <h1 class="text-3xl font-semibold mb-6">User Profile</h1>
 
@@ -18,11 +18,9 @@ Profile
         <div>
             <label for="lastName" class="text-gray-600">Last Name:</label>
             <p id="lastName" class="text-xl font-medium">
-            {% if api_key %}
+            
                 {{user.last_name}}
-            {%else %}
-            --------------------
-            {% endif %}    
+         
                 
         </p>
         </div>
@@ -41,11 +39,9 @@ Profile
         <div>
             <label for="apiKey" class="text-gray-600">API Key:</label>
             <p id="apiKey" class="text-xl font-medium">
-            {% if api_key %}
+            
                 {{profile.api_key}}
-            {%else %}
-            xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-            {% endif %}
+            
             </p>
         </div>
     </div>

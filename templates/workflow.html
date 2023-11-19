@@ -1,0 +1,84 @@
+{% extends "home.html" %}
+{% block title %}
+Company
+{% endblock %}
+
+
+{% block content %}
+<div class="bg-white p-8  sm:w-full">
+
+    <h1 class="text-3xl font-semibold mb-6">Workflows </h1>
+    <a href="/workflow/create/" class="inline-flex mr-5 items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+        Add Workflow        
+    </a>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+
+        {% for workflow in workflows %}
+        <card class="col-span-1">
+            <div 
+                class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">
+
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
+                    {{workflow.name}}
+                </h5>
+                <p class="font-normal text-gray-700">
+                    {{workflow.description}}
+                </p>
+                <p class="text-xl my-2   ">Workflow sequence:</p>
+                
+                <div class="relative overflow-x-auto mb-2 ">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 ">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 rounded-s-lg">
+                                    Name
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Order
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                                {% for workstep in worksteps %}
+                                    {% if workstep.workflow.name == workflow.name %}
+                                    <tr class="bg-white ">
+                                        <td scope="row" class="px-6 py-4 font-medium capitalize text-gray-900 whitespace-nowrap ">
+                                            {{workstep.user.User.first_name}}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {{workstep.sequence}}
+                                        </td>
+                                    </tr>
+                                        
+                                    {% endif %}
+                                {%endfor%}
+
+                            
+                        </tbody>
+                        
+                    </table>
+                </div>
+
+                <a href="/workflow/{{workflow.id}}/remove/" class="inline-flex  mt-4 mb-4 items-center bg-red-100 border-0 py-1 px-3 focus:outline-none hover:bg-red-200 rounded text-base mt-4 md:mt-0">
+                    Delete      
+                </a>
+            </div>
+        </card>
+        {%endfor%}
+
+        <!-- Add more cards as needed -->
+
+    </div>
+            
+    
+    
+    <!-- User Info Card -->
+    
+</div>
+
+ 
+{% endblock %}
+
+

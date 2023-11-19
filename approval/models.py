@@ -14,6 +14,7 @@ class Company(models.Model):
     
 class User_profile(models.Model):
     User = models.ForeignKey(User,on_delete=models.CASCADE)
+    password = models.CharField(max_length=50,default = 'dlvgh123')
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
     role_choices = {
         ('admin', 'admin'),
@@ -59,11 +60,11 @@ class Approval(models.Model):
         ('adhoc','adhoc'),
     }
     approval_type = models.CharField(max_length=20,choices = aprroval_choices)
-    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
+    workflowstep = models.ForeignKey(WorkflowStep, on_delete=models.CASCADE)
     creator = models.ForeignKey(User_profile, on_delete=models.CASCADE, related_name='created_approvals')
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)
