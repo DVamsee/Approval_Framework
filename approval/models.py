@@ -22,7 +22,7 @@ class User_profile(models.Model):
         ('client','client'),
     }
     role = models.CharField(max_length=50,choices=role_choices)
-    api_key = models.CharField(max_length=50,default=None,null=True)
+    api_key = models.CharField(max_length=90,default=None,null=True)
     def __str__(self):
         return self.User.first_name+" "+self.User.last_name
     

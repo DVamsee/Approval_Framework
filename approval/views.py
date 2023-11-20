@@ -154,7 +154,7 @@ def approval(request):
     user = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated:
         comments = Comment.objects.all()
-        if user.role == 'admin' :
+        '''if user.role == 'admin' :
             approvals = Approval.objects.all()
             approval_objs = []
             header_line = list()
@@ -167,8 +167,8 @@ def approval(request):
                     approval_objs.append(obj)
                 else:
                     obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
-                    approval_objs.append(obj)
-        elif user.role == 'staff':
+                    approval_objs.append(obj)'''
+        if user.role == 'staff':
             worksteps = WorkflowStep.objects.filter(user = user.id)
             workstep_ids = worksteps.values_list('id',flat=True)
             approval_objs = []
@@ -178,7 +178,7 @@ def approval(request):
                 if not obj:
                     approval_objs.append(obj)
             return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
-        else:
+        elif user.role =='client':
             #approvals = Approval.objects.filter(creator = user.id)
             approvals = Approval.objects.filter(creator=user.id)
             approval_objs = []
@@ -193,7 +193,20 @@ def approval(request):
                 else:
                     obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
                     approval_objs.append(obj)
-
+        else:
+            approvals = Approval.objects.all()
+            approval_objs = []
+            header_line = list()
+            for approval in approvals:
+                header_line.append(approval.header_detail)
+            header_line = set(header_line)
+            for header in header_line:
+                obj = Approval.objects.filter(header_detail = header,status = 'approved').order_by('sequence').reverse().first()
+                if obj:
+                    approval_objs.append(obj)
+                else:
+                    obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
+                    approval_objs.append(obj)
                 
 
             
