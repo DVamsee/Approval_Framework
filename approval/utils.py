@@ -53,19 +53,6 @@ def approval_forwarder(approval_id, workflowstep_id):
                 )
                 approval_obj.save()
 
-            # Update the original approval to the latest WorkflowStep
-            approval.workflowstep = next_worksteps.last()
-            approval.save()
-
-            # Delete previous approvals with the same workflow and sequence less than the last one
-            previous_approvals = Approval.objects.filter(
-                header_detail=approval.header_detail,
-                line_item_detail=approval.line_item_detail,
-                workflowstep=workstep,
-
-            )
-            previous_approvals.delete()
-
             return 'forwarded'
     else:
 
