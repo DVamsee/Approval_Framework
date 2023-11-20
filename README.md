@@ -14,6 +14,8 @@ This project is an Approval Framework application built with Django. It allows f
 
 ```bash
 git clone https://github.com/DVamsee/Approval_Framework.git
+```
+```bash
 cd approval-framework
 
 ```
