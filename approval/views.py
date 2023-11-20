@@ -174,9 +174,9 @@ def approval(request):
             approval_objs = []
             approvals  = Approval.objects.filter(workflowstep__in = workstep_ids,status = 'pending')
             for approval in approvals:
-                obj = Approval.objects.filter(header_detail = approval.header_detail).order_by('id').reverse().first()
+                obj = Approval.objects.filter(header_detail = approval.header_detail,status = 'pending').order_by('id').reverse().first()
                 
-                approval_objs.append(obj)
+                    
             return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
         else:
             #approvals = Approval.objects.filter(creator = user.id)
