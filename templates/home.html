@@ -48,15 +48,9 @@ Home-{{request.user.first_name}}
                 <span class="ml-3 text-xl">Approval Framework</span>
               </a>
          </li>
-         <li class="border-t border-gray-200 mt-2">
-             <a href="/approval/" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                
-                <span class="ms-3">Approvals</span>
-             </a>
-          </li>
          {% if  profile.role == 'admin' %}
           
-          <li>
+          <li class="border-t border-gray-200 mt-2">
             <a href="/company/" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                
                <span class="ms-3">Company</span>
@@ -69,8 +63,19 @@ Home-{{request.user.first_name}}
             </a>
          </li>
          {%elif profile.role == 'staff' %}
-         
+         <li class="border-t border-gray-200 mt-2">
+            <a href="/approval/" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+               
+               <span class="ms-3">Approvals</span>
+            </a>
+         </li>
          {%else %}
+         <li class="border-t border-gray-200 mt-2">
+            <a href="/approval/" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+               
+               <span class="ms-3">Approvals</span>
+            </a>
+         </li>
 
          {% endif %}
          
