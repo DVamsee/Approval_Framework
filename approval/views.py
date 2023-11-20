@@ -22,7 +22,7 @@ from .models import (
     Comment,
 )
 
-from .utils import workflow_decider,approval_forwarder
+from .utils import workflow_decider,approval_forwarder,staff_count
 # Create your views here.
 
 User = get_user_model()
@@ -156,15 +156,49 @@ def approval(request):
         comments = Comment.objects.all()
         if user.role == 'admin' :
             approvals = Approval.objects.all()
-            return render(request,'approvals.html',{'approvals':approvals,'profile':user,'comments':comments})
+            approval_objs = []
+            header_line = list()
+            for approval in approvals:
+                header_line.append(approval.header_detail)
+            header_line = set(header_line)
+            for header in header_line:
+                obj = Approval.objects.filter(header_detail = header,status = 'approved').order_by('sequence').reverse().first()
+                if obj:
+                    approval_objs.append(obj)
+                else:
+                    obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
+                    approval_objs.append(obj)
         elif user.role == 'staff':
             worksteps = WorkflowStep.objects.filter(user = user.id)
             workstep_ids = worksteps.values_list('id',flat=True)
+            approval_objs = []
             approvals  = Approval.objects.filter(workflowstep__in = workstep_ids,status = 'pending')
-            return render(request,'approvals.html',{'approvals':approvals,'profile':user,'comments':comments})
+            for approval in approvals:
+                obj = Approval.objects.filter(header_detail = approval.header_detail,status = 'approved')
+                if not obj:
+                    approval_objs.append(obj)
+            return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
         else:
-            approvals = Approval.objects.filter(creator = user.id)
-            return render(request,'approvals.html',{'approvals':approvals,'profile':user,'comments':comments})
+            #approvals = Approval.objects.filter(creator = user.id)
+            approvals = Approval.objects.filter(creator=user.id)
+            approval_objs = []
+            header_line = list()
+            for approval in approvals:
+                header_line.append(approval.header_detail)
+            header_line = set(header_line)
+            for header in header_line:
+                obj = Approval.objects.filter(header_detail = header,status = 'approved').order_by('sequence').reverse().first()
+                if obj:
+                    approval_objs.append(obj)
+                else:
+                    obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
+                    approval_objs.append(obj)
+
+                
+
+            
+
+            return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
 
             
 
@@ -193,6 +227,7 @@ def approval_create(request):
                     approval_type = approval_type,
                     creator = creator,
                     workflowstep = workflow, # workflowstep object
+                    sequence = workflow.sequence,
                 )
                 obj.save()
             
@@ -236,25 +271,18 @@ def approval_approve(request,id):
             else:
                 approval.status = 'approved'
                 approval.save()
-                approvals = Approval.objects.filter(
-                    workflowstep = approval.workflowstep.id,
-                    header_detail=approval.header_detail,
-                    line_item_detail=approval.line_item_detail,
-                    creator=approval.creator.id,
-                    status = 'pending',
-                )
-                for obj in approvals:
-                    obj.delete()
                 return redirect('/approval/')
         return HttpResponse('Invalid approval id provided.')
     return redirect('/login/')
 
 def approval_reject(request,id):
     user = User_profile.objects.get(User = request.user.id)
+    count = staff_count()
     if request.user.is_authenticated:
         approval = Approval.objects.get(id = id)
         if approval:
             approval.status = 'rejected'
+            approval.sequence = count+10
             approval.save()
             return redirect('/approval/')
         return HttpResponse('Invalid approval id provided.')

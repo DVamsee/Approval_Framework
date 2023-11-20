@@ -61,6 +61,7 @@ class Approval(models.Model):
     }
     approval_type = models.CharField(max_length=20,choices = aprroval_choices)
     workflowstep = models.ForeignKey(WorkflowStep, on_delete=models.CASCADE)
+    sequence = models.IntegerField()
     creator = models.ForeignKey(User_profile, on_delete=models.CASCADE, related_name='created_approvals')
 
     def __str__(self):

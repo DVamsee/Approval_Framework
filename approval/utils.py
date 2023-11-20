@@ -6,6 +6,8 @@ from .models import (
     Approval,
 )
 
+def staff_count():
+    return User_profile.objects.all().count()
 
 def workflow_decider():
     approval_count = 500
@@ -47,6 +49,7 @@ def approval_forwarder(approval_id, workflowstep_id):
                     approval_type=approval.approval_type,
                     creator=approval.creator,
                     workflowstep=next_workstep,
+                    sequence = next_workstep.sequence,
                 )
                 approval_obj.save()
 
@@ -65,4 +68,5 @@ def approval_forwarder(approval_id, workflowstep_id):
 
             return 'forwarded'
     else:
+
         return 'approved'
