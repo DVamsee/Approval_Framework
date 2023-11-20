@@ -13,7 +13,7 @@ This project is an Approval Framework application built with Django. It allows f
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your_username/approval-framework.git
+git clone https://github.com/DVamsee/Approval_Framework.git
 cd approval-framework
 
 ```

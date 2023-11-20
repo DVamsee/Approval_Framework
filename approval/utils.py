@@ -35,7 +35,7 @@ def approval_forwarder(approval_id, workflowstep_id):
     workstep = WorkflowStep.objects.get(id=workflowstep_id)
 
     # Find next WorkflowStep(s) with the same sequence within the same workflow
-    next_worksteps = WorkflowStep.objects.filter(sequence=workstep.sequence, workflow=workstep.workflow).order_by('sequence')
+    next_worksteps = WorkflowStep.objects.filter(sequence=workstep.sequence+1, workflow=workstep.workflow).order_by('sequence')
 
     if next_worksteps.exists():
         with transaction.atomic():
@@ -56,8 +56,10 @@ def approval_forwarder(approval_id, workflowstep_id):
 
             # Delete previous approvals with the same workflow and sequence less than the last one
             previous_approvals = Approval.objects.filter(
-                workflowstep__workflow=workstep.workflow,
-                workflowstep__sequence__lt=workstep.sequence,
+                header_detail=approval.header_detail,
+                line_item_detail=approval.line_item_detail,
+                workflowstep=workstep,
+
             )
             previous_approvals.delete()
 
