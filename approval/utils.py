@@ -4,6 +4,7 @@ from .models import (
     Workflow,
     WorkflowStep,
     Approval,
+    Comment,
 )
 
 def staff_count():
@@ -52,6 +53,10 @@ def approval_forwarder(approval_id, workflowstep_id):
                     sequence = next_workstep.sequence,
                 )
                 approval_obj.save()
+                comments = Comment.objects.filter(approval = approval.id)
+                for comment in comments:
+                    comment.approval = approval_obj
+                    comment.save()
 
             return 'forwarded'
     else:
