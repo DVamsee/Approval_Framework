@@ -35,12 +35,10 @@ def approval_forwarder(approval_id, workflowstep_id):
     workstep = WorkflowStep.objects.get(id=workflowstep_id)
 
     # Find next WorkflowStep(s) with the same sequence within the same workflow
-    next_worksteps = WorkflowStep.objects.filter(sequence=workstep.sequence+1, workflow=workstep.workflow).order_by('sequence')
-    count = len(next_worksteps)
+    next_worksteps = WorkflowStep.objects.filter(sequence=workstep.sequence, workflow=workstep.workflow).order_by('sequence')
 
     if next_worksteps.exists():
         with transaction.atomic():
-            x = 0
             for next_workstep in next_worksteps:
                 approval_obj = Approval.objects.create(
                     header_detail=approval.header_detail,
@@ -51,27 +49,18 @@ def approval_forwarder(approval_id, workflowstep_id):
                     workflowstep=next_workstep,
                 )
                 approval_obj.save()
-                x+=1
 
             # Update the original approval to the latest WorkflowStep
-            worksteps = WorkflowStep.objects.filter(sequence = workstep.sequence, workflow=workstep.workflow)
-            workstep_ids = worksteps.values_list('id',flat=True)
+            approval.workflowstep = next_worksteps.last()
+            approval.save()
 
-            approvals =[]
-            for ids in workstep_ids:
-                workstep = WorkflowStep.objects.get(id = ids)
-                obj = Approval.objects.get(
-                workflowstep = workstep.id,
-                header_detail=approval.header_detail,
-                line_item_detail=approval.line_item_detail,
-                creator=approval.creator.id,
-                )
-                obj.workflowstep = next_worksteps.first()
-                obj.delete()
+            # Delete previous approvals with the same workflow and sequence less than the last one
+            previous_approvals = Approval.objects.filter(
+                workflowstep__workflow=workstep.workflow,
+                workflowstep__sequence__lt=workstep.sequence,
+            )
+            previous_approvals.delete()
 
             return 'forwarded'
     else:
         return 'approved'
-
-    
-

@@ -241,8 +241,8 @@ def approval_approve(request,id):
                     header_detail=approval.header_detail,
                     line_item_detail=approval.line_item_detail,
                     creator=approval.creator.id,
-                    status = 'approved',
-                )[1:]
+                    status = 'pending',
+                )
                 for obj in approvals:
                     obj.delete()
                 return redirect('/approval/')
