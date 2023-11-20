@@ -10,8 +10,8 @@ def staff_count():
     return User_profile.objects.all().count()
 
 def workflow_decider():
-    approval_count = 500
-    #approval_count = Approval.objects.filter(approval_type = 'pending').count()
+    
+    approval_count = Approval.objects.filter(approval_type = 'pending').count()
     workflows = Workflow.objects.order_by('threshold_value').reverse()
     workstep_ids = []
     for workflow in workflows:
