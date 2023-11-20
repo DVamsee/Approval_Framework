@@ -7,9 +7,6 @@ This project is an Approval Framework application built with Django. It allows f
 - [Installation](#installation)
 - [Usage](#usage)
 - [Creating a Superuser](#creating-a-superuser)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -45,7 +42,7 @@ pip install -r requirements.txt
 pip install -r requirements.txt
 ```
 
-Usage
+# Usage
 Run the development server:
 ```bash
 python manage.py runserver
