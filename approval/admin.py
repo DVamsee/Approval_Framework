@@ -6,6 +6,7 @@ from .models import (
     WorkflowStep,
     Comment,
     Company,
+    Notification,
 
 )
 # Register your models here.
@@ -16,4 +17,5 @@ admin.site.register(Workflow)
 admin.site.register(WorkflowStep)
 admin.site.register(Approval)
 admin.site.register(Comment)
+admin.site.register(Notification)
 

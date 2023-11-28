@@ -20,6 +20,7 @@ from .models import (
     WorkflowStep,
     Approval,
     Comment,
+    Notification,
 )
 
 from .utils import workflow_decider,approval_forwarder,staff_count
@@ -30,7 +31,8 @@ User = get_user_model()
 def home(request):
     if request.user.is_authenticated:
         profile = User_profile.objects.get(User = request.user.id)
-        return render(request, 'home.html',{'profile':profile})
+        notifications = Notification.objects.filter(user = profile)
+        return render(request, 'home.html',{'profile':profile,'notifications':notifications})
     return render(request,'home.html')
 
 def registration_view(request):
@@ -82,10 +84,10 @@ def company(request):
         return render(request,'company.html',{'companys':companys,'profile':user})
     return redirect('/login/')
 
-def remove_company(request,id):
+def remove_company(request,obj_id):
     user = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated and user.role == 'admin':
-        company = Company.objects.get(id = id)
+        company = Company.objects.get(id = obj_id)
         if company:
             company.delete()
             return redirect('/company/')
@@ -114,8 +116,10 @@ def workflow(request):
         return render(request,'workflow.html',{'workflows':workflows,'profile':user,'worksteps':worksteps})
     return redirect('/login/')
 
+import json
+
 def workflow_create(request):
-    form = WorkflowForm(request.POST or None)
+    '''form = WorkflowForm(request.POST or None)
     if form.is_valid():
         name = form.cleaned_data.get('name')
         description = form.cleaned_data.get('description')
@@ -136,12 +140,44 @@ def workflow_create(request):
             workstep_obj = WorkflowStep.objects.create(workflow = workflow_obj,user = user,sequence= sequence[id])
             workstep_obj.save()
         return redirect('/workflow/')
+    return render(request,'workflow_create.html',{'form':form})'''
+
+    form = WorkflowForm(request.POST or None)
+    if form.is_valid():
+        name = form.cleaned_data.get('name')
+        description = form.cleaned_data.get('description')
+        threshold_value = form.cleaned_data.get('threshold_value')
+        staff_users = User_profile.objects.filter(role='staff')
+        staffs = dict()
+        sequence = {}
+        for user in staff_users:
+            staffs[user.id] = user.User.first_name
+        for id in staffs.keys():
+            sequence[id] = form.cleaned_data.get(staffs[id])
+
+        user_sequence = {}
+        for key, value in sequence.items():
+            user_sequence.setdefault(value, []).append(key)
+
+        workflow_obj = Workflow.objects.create(name = name, description = description, threshold_value = threshold_value)
+        workflow_obj.save()
+        print(user_sequence)
+        for key in user_sequence.keys():
+            users = { 'user_id': user_sequence[key] }
+            
+            obj = WorkflowStep.objects.create(
+                workflow = workflow_obj,
+                sequence = int(key),
+                users = users,
+            )
+            obj.save()
+        return redirect('/workflow/')
     return render(request,'workflow_create.html',{'form':form})
 
-def delete_workflow(request,id):
+def delete_workflow(request,obj_id):
     user = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated and user.role == 'admin':
-        workflow = Workflow.objects.get(id = id)
+        workflow = Workflow.objects.get(id = obj_id)
         if workflow:
             workflow.delete()
             return redirect('/workflow/')
@@ -169,28 +205,43 @@ def approval(request):
                     obj = Approval.objects.filter(header_detail = header,).order_by('sequence').reverse().first()
                     approval_objs.append(obj)
         if user.role == 'staff':
-            worksteps = WorkflowStep.objects.filter(user = user.id)
+            '''worksteps = WorkflowStep.objects.filter(user = user.id)
             workstep_ids = worksteps.values_list('id',flat=True)
             approval_objs = []
             approvals  = Approval.objects.filter(workflowstep__in = workstep_ids,status = 'pending')
             for approval in approvals:
                 obj = Approval.objects.filter(header_detail = approval.header_detail,status = 'pending').order_by('id').reverse().first()
-                
+                approval_objs.append(obj)
                     
+            return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})'''
+
+            
+
+            workflowsteps = WorkflowStep.objects.all()
+            workflowsteps_ids = []
+            for obj in workflowsteps:
+                user_dict = obj.users['user_id']
+                if user.id in user_dict:
+                    workflowsteps_ids.append(obj.id)
+
+            approval_objs = Approval.objects.filter(workflowstep__in = workflowsteps_ids,status = 'pending' )
+            approval_ids = [obj.id for obj in approval_objs]
+            comments = Comment.objects.filter(approval__in = approval_ids)
             return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
+
         else:
             #approvals = Approval.objects.filter(creator = user.id)
             approvals = Approval.objects.filter(creator=user.id)
-            approval_objs = []
+            '''approval_objs = []
             header_line = list()
             for approval in approvals:
                 header_line.append(approval.header_detail)
             header_line = set(header_line)
             for header in header_line:
                 obj = Approval.objects.filter(header_detail = header).order_by('id').reverse().first()
-                approval_objs.append(obj)
+                approval_objs.append(obj)'''
             
-            return render(request,'approvals.html',{'approvals':approval_objs,'profile':user,'comments':comments})
+            return render(request,'approvals.html',{'approvals':approvals,'profile':user,'comments':comments})
         
             
 
@@ -208,9 +259,13 @@ def approval_create(request):
             status = 'pending'
             creator = user
 
-            workflow_ids = workflow_decider()
+            #workflow_ids = workflow_decider()
 
-            for id  in workflow_ids:
+            #edited 
+
+            workflow_id = workflow_decider()
+
+            '''for id  in workflow_ids:
                 workflow = WorkflowStep.objects.get(id = id)
                 obj = Approval.objects.create(
                     header_detail = header,
@@ -222,21 +277,64 @@ def approval_create(request):
                     sequence = workflow.sequence,
                 )
                 obj.save()
-            
-            return redirect('/approval/')
+                text = f'An approval has been forwarded to you by {user.User.first_name}'
+                notification = Notification.objects.create(
+                    text = text,
+                    user = workflow.user,
+                )
+                notification.save()
+            '''
+
+            workflowstep_obj = WorkflowStep.objects.filter(id = workflow_id ).first()
+
+            if workflowstep_obj:
+                obj = Approval.objects.create(
+                    header_detail = header,
+                    line_item_detail = line_items,
+                    status =  status,
+                    approval_type = approval_type,
+                    creator = creator,
+                    workflowstep = workflowstep_obj, # workflowstep object
+                    sequence = workflowstep_obj.sequence,
+                )
+                obj.save()
+                text = f'An approval has been forwarded to you by {user.User.first_name}'
+
+                obj_ids = workflowstep_obj.users['user_id']
+                for obj_id in obj_ids:
+                    u_obj = User_profile.objects.get(id=obj_id)
+                    notification = Notification.objects.create(
+                        text = text,
+                        user = u_obj,
+                    )
+                    notification.save()
+
+
+                return redirect('/approval/')
             
         return render(request,'approval_create.html',{'form':form,'profile':user})
     return redirect('/login/')
 
 
+def approval_delete(request,obj_id):
+    if request.user.is_authenticated:
+        approval = Approval.objects.filter(id =obj_id).first()
+        if approval:
+            approvals = Approval.objects.filter(header_detail = approval.header_detail)
+            for obj in approvals:
+                obj.delete()
+            return redirect('/approval/')
+        return HttpResponse('NO approval found')
+    return redirect('/login/')
 
-def comment_create(request,id):
+
+def comment_create(request,obj_id):
     user_obj = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated:
         comments = Comment.objects.all()
         if request.method == 'POST':
             comment = request.POST.get('comment')
-            approval = Approval.objects.get(id = id)
+            approval = Approval.objects.get(id = obj_id)
             user = user_obj
 
             obj = Comment.objects.create(
@@ -252,13 +350,13 @@ def comment_create(request,id):
 
 
 
-def approval_approve(request,id):
+def approval_approve(request,obj_id):
     user = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated:
-        approval = Approval.objects.get(id = id)
+        approval = Approval.objects.get(id = obj_id)
         if approval:
-            result = approval_forwarder(approval_id=approval.id,workflowstep_id=approval.workflowstep.id)
-            if result == 'forarded':
+            result = approval_forwarder(approval_id=approval.id,workflowstep_id=approval.workflowstep.id,user_id = user.id)
+            if result == 'forwarded':
                 return redirect('/approval/')
             else:
                 approval.status = 'approved'
@@ -267,15 +365,26 @@ def approval_approve(request,id):
         return HttpResponse('Invalid approval id provided.')
     return redirect('/login/')
 
-def approval_reject(request,id):
+def approval_reject(request,obj_id):
     user = User_profile.objects.get(User = request.user.id)
     count = staff_count()
     if request.user.is_authenticated:
-        approval = Approval.objects.get(id = id)
+        approval = Approval.objects.get(id = obj_id)
         if approval:
             approval.status = 'rejected'
-            approval.sequence = count+10
+            '''approvals = Approval.objects.filter(header_detail = approval.header_detail).exclude(status = 'rejected')
+            approvals.delete()
+            approval.sequence = count+10'''
             approval.save()
             return redirect('/approval/')
         return HttpResponse('Invalid approval id provided.')
     return redirect('/login/')
+
+
+@login_required
+def notification_remove(request,obj_id):
+    notification = Notification.objects.filter(id = obj_id).first()
+    if notification:
+        notification.delete()
+        return redirect('/')
+    return redirect('/')

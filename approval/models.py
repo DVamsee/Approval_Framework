@@ -38,8 +38,9 @@ class Workflow(models.Model):
 class WorkflowStep(models.Model):
     id = models.AutoField(primary_key=True)
     workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
-    user = models.ForeignKey(User_profile, on_delete=models.CASCADE)
+    #user = models.ForeignKey(User_profile, on_delete=models.CASCADE)
     sequence = models.IntegerField() 
+    users = models.JSONField(null = True, default=None)
 
     def __str__(self):
         return f'{self.workflow.name}_{self.sequence}'
@@ -76,3 +77,12 @@ class Comment(models.Model):
     def __str__(self):
         return f'{self.id}'
     
+
+
+class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
+    text = models.TextField(max_length = 50)
+    user = models.ForeignKey(User_profile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.id}'
