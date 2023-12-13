@@ -32,9 +32,11 @@ Approvals
 <div class="bg-white p-8  sm:w-full">
 
     <h1 class="text-3xl font-semibold mb-6">Approvals </h1>
+    {% if profile.role == 'client' %}
     <a href="/approval/create/" class="inline-flex mr-5 items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
         Add Approval        
     </a>
+    {%endif %}
 
     <div class="grid grid-cols-1  lg:grid-cols-2 gap-6 mt-4">
 
@@ -91,6 +93,9 @@ Approvals
                 <p class="mt-2 font-medium text-gray-900 capitalize">
                     Status : {{approval.status}}
                 </p>
+                <p class="mt-2 font-medium text-gray-900 capitalize">
+                    Creator : {{approval.creator}}
+                </p>
                 {% if profile.role == 'staff' %}
                 <div class="flex mb-2 mt-2">
                     <a href="/approval/{{approval.id}}/approve/" class="mr-2 text-white bg-green-400 hover:bg-green-500 font-medium rounded-lg text-sm px-3 py-2.5 text-center inline-flex items-center">
@@ -109,7 +114,12 @@ Approvals
 
         {% else %}
 
+            {% if profile.role == 'staff' %}
+
             <p class=" flex justify-center items-center"> ----------- No approvals to check -------------- </p>
+            {%else %}
+            <p class=" flex justify-center items-center"> ----------- No approvals raised  -------------- </p>
+            {%endif %}
         {% endif %}
         <!-- Add more cards as needed -->
 

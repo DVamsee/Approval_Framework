@@ -8,9 +8,16 @@ Profile
 <div class="bg-white p-8  sm:w-96">
 
     <h1 class="text-3xl font-semibold mb-6">User Profile</h1>
-
+   
     <!-- User Info Card -->
     <div class="space-y-4">
+
+
+        <a href="/approval/{{approval.id}}/delete/" class="absolute top-0 right-0 mt-4 mr-4 text-white font-medium items-center bg-green-400 border-0 py-1 px-3 focus:outline-none hover:bg-green-500 rounded text-base ">
+                Edit Profile      
+        </a>
+
+
         <div>
             <label for="firstName" class="text-gray-600">First Name:</label>
             <p id="firstName" class="text-xl font-medium">{{user.first_name}}</p>
@@ -36,6 +43,8 @@ Profile
             <label for="role" class="text-gray-600">Role:</label>
             <p id="role" class="text-xl font-medium">{{profile.role}}</p>
         </div>
+
+        <!--
         <div>
             <label for="apiKey" class="text-gray-600">API Key:</label>
             <p id="apiKey" class="text-xl font-medium">
@@ -44,6 +53,9 @@ Profile
             
             </p>
         </div>
+
+        -->
+        
     </div>
 
 </div>

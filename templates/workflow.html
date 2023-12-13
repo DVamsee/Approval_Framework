@@ -25,18 +25,18 @@ Company
                 <p class="font-normal mb-4 text-gray-700">
                     {{workflow.description}}
                 </p>
-                <!--
-                    <p class="text-xl my-2   ">Workflow sequence:</p>
+                
+                    <p class="text-md my-2 mb-3 font-medium  ">Workflow sequence:</p>
                 
                 <div class="relative overflow-x-auto mb-2 ">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-100 ">
                             <tr>
                                 <th scope="col" class="px-6 py-3 rounded-s-lg">
-                                    Name
+                                    Sequence
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Order
+                                    Name
                                 </th>
                             </tr>
                         </thead>
@@ -44,15 +44,21 @@ Company
 
                                 {% for workstep in worksteps %}
                                     {% if workstep.workflow.name == workflow.name %}
-                                    <tr class="bg-white ">
-                                        <td scope="row" class="px-6 py-4 font-medium capitalize text-gray-900 whitespace-nowrap ">
-                                            {{workstep.user.User.first_name}}
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            {{workstep.sequence}}
-                                        </td>
-                                    </tr>
-                                        
+
+                                    {% for values in workstep.users.values%}
+                                        {% for user in staff %}
+                                            {% if user.id in values %}
+                                            <tr class="bg-white ">
+                                                <td class="px-6 py-4">
+                                                    {{workstep.sequence}}
+                                                </td>
+                                                <td scope="row" class="px-6 py-4 font-medium capitalize text-gray-900 whitespace-nowrap ">
+                                                    {{user.User.first_name}} {{user.User.last_name}}
+                                                </td>
+                                            {% endif %}
+                                            </tr>
+                                        {%endfor %}
+                                    {%endfor %}
                                     {% endif %}
                                 {%endfor%}
 
@@ -62,7 +68,7 @@ Company
                     </table>
                 </div>
 
-                -->
+            
 
                 <a href="/workflow/{{workflow.id}}/remove/" class="inline-flex  mb-2 items-center bg-red-100 border-0 py-1 px-3 focus:outline-none hover:bg-red-200 rounded text-base mt-4 md:mt-0">
                     Delete      

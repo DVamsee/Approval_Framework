@@ -111,9 +111,10 @@ def company_create(request):
 def workflow(request):
     user = User_profile.objects.get(User = request.user.id)
     if request.user.is_authenticated and user.role == 'admin' :
+        staff = User_profile.objects.filter(role = 'staff')
         workflows = Workflow.objects.all().order_by('name')
-        worksteps = WorkflowStep.objects.all().order_by('workflow')
-        return render(request,'workflow.html',{'workflows':workflows,'profile':user,'worksteps':worksteps})
+        worksteps = WorkflowStep.objects.all().order_by('sequence')
+        return render(request,'workflow.html',{'workflows':workflows,'profile':user,'worksteps':worksteps,'staff':staff})
     return redirect('/login/')
 
 import json
@@ -359,6 +360,12 @@ def approval_approve(request,obj_id):
             if result == 'forwarded':
                 return redirect('/approval/')
             else:
+                text = f"Your approval:{approval.header_detail[:5]} has been approved"
+                notification = Notification.objects.create(
+                    text = text,
+                    user = approval.creator,
+                )
+                notification.save()
                 approval.status = 'approved'
                 approval.save()
                 return redirect('/approval/')
@@ -366,8 +373,8 @@ def approval_approve(request,obj_id):
     return redirect('/login/')
 
 def approval_reject(request,obj_id):
-    user = User_profile.objects.get(User = request.user.id)
-    count = staff_count()
+    # user = User_profile.objects.get(User = request.user.id)
+    # count = staff_count()
     if request.user.is_authenticated:
         approval = Approval.objects.get(id = obj_id)
         if approval:
@@ -376,6 +383,12 @@ def approval_reject(request,obj_id):
             approvals.delete()
             approval.sequence = count+10'''
             approval.save()
+            text = f"Your approval:{approval.header_detail[:5]} has been rejected"
+            notification = Notification.objects.create(
+                text = text,
+                user = approval.creator,
+            )
+            notification.save()
             return redirect('/approval/')
         return HttpResponse('Invalid approval id provided.')
     return redirect('/login/')

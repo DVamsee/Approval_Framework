@@ -157,7 +157,6 @@ class LoginForm(forms.Form):
     def clean_password(self):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
-        print(password)
         obj = User.objects.filter(username = email).first()
         if obj:
             user = User_profile.objects.filter(User = obj.id, password = password)

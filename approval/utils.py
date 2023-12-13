@@ -21,7 +21,7 @@ def workflow_decider():
 
         if approval_count > threshold_value:
             workstep = WorkflowStep.objects.filter(workflow = workflow.id).order_by('sequence').first()
-            worksteps = WorkflowStep.objects.filter(sequence = workstep.sequence,workflow = workflow.id)
+            #worksteps = WorkflowStep.objects.filter(sequence = workstep.sequence,workflow = workflow.id)
             '''for obj in worksteps:
                 workstep_ids.append(obj.id)
             return workstep_ids'''
@@ -30,7 +30,7 @@ def workflow_decider():
             return int(workstep.id)
     else:
         workstep = WorkflowStep.objects.filter(workflow = workflow.id).order_by('sequence').first()
-        worksteps = WorkflowStep.objects.filter(sequence = workstep.sequence,workflow = workflow.id)
+        #worksteps = WorkflowStep.objects.filter(sequence = workstep.sequence,workflow = workflow.id)
         '''for obj in worksteps:
             workstep_ids.append(obj.id)
         return workstep_ids'''
@@ -38,7 +38,7 @@ def workflow_decider():
             #edited
         return int(workstep.id)
     
-from django.db import transaction
+# from django.db import transaction
 
 def approval_forwarder(approval_id, workflowstep_id,user_id):
     # approval = Approval.objects.get(id=approval_id)
@@ -98,6 +98,7 @@ def approval_forwarder(approval_id, workflowstep_id,user_id):
             approval.workflowstep = next_step
             approval.save()
             user_objs = next_step.users['user_id']
+    
             for user_id in user_objs:
                 user = User_profile.objects.get(id = user_id)    
                 text = f'An approval has been forwarded to you by {approver.User.first_name}'
